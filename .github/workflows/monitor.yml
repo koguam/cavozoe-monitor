@@ -1,22 +1,25 @@
 name: Cavo Zoe availability monitor
 
 on:
+  # Hourly safety-net restart. The real checking happens inside the running
+  # job's loop (every 3 min) — we do NOT rely on GitHub's flaky short-interval
+  # cron, which heavily deprioritizes */5 schedules.
   schedule:
-    # Every 5 minutes (GitHub's minimum; may be delayed under load).
-    - cron: "*/5 * * * *"
-  workflow_dispatch: {}   # lets you run it manually from the Actions tab
+    - cron: "3 * * * *"
+  workflow_dispatch: {}
 
-# Needed so the job can commit the updated state.json back to the repo.
 permissions:
-  contents: write
+  contents: read
 
+# A fresh run (hourly cron or manual) replaces the currently looping one.
 concurrency:
   group: cavozoe-monitor
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 355
     steps:
       - uses: actions/checkout@v4
 
@@ -24,20 +27,17 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run availability check
+      - name: Monitor loop (checks every 3 min for ~5.8h)
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_IDS: ${{ secrets.CHAT_IDS }}
-        run: python check.py
-
-      - name: Persist state (only if changed)
         run: |
-          git add state.json 2>/dev/null || true
-          if git status --porcelain -- state.json | grep -q .; then
-            git config user.name "cavozoe-bot"
-            git config user.email "cavozoe-bot@users.noreply.github.com"
-            git commit -m "update state [skip ci]"
-            git push
-          else
-            echo "No state change."
-          fi
+          end=$(( $(date +%s) + 350*60 ))
+          i=0
+          while [ "$(date +%s)" -lt "$end" ]; do
+            i=$((i+1))
+            echo "----- check #$i -----"
+            python check.py || true
+            sleep 180
+          done
+          echo "Loop window ended; job will be restarted by the hourly schedule."
