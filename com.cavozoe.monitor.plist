@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.cavozoe.monitor</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/maksymkogua/Vibecoding/hotel_monitor/run.sh</string>
+    </array>
+
+    <!-- Run every 180 seconds (3 minutes) -->
+    <key>StartInterval</key>
+    <integer>180</integer>
+
+    <!-- Also run once immediately when the agent is loaded -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/maksymkogua/Vibecoding/hotel_monitor/logs/launchd.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/maksymkogua/Vibecoding/hotel_monitor/logs/launchd.err.log</string>
+</dict>
+</plist>

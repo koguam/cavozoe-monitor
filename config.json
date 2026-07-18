@@ -1,0 +1,13 @@
+{
+  "base_url": "https://cavozoe.reserve-online.net",
+  "checkin": "2026-07-22",
+  "nights": 3,
+  "adults": 2,
+  "rooms": 1,
+  "children": 0,
+
+  "telegram_token": "PUT-YOUR-BOTFATHER-TOKEN-HERE",
+  "chat_ids": [],
+
+  "remind_after_seconds": 1800
+}
